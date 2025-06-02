@@ -11,7 +11,15 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/">KPIPro</a>
+            <% if (locals.user) { %>
+                <% if (locals.user.role === 'manager') { %>
+                    <a class="navbar-brand" href="/manager/dashboard">KPIPro</a>
+                <% } else { %>
+                    <a class="navbar-brand" href="/staff/dashboard">KPIPro</a>
+                <% } %>
+            <% } else { %>
+                <a class="navbar-brand" href="/">KPIPro</a>
+            <% } %>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>

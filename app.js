@@ -16,14 +16,6 @@ mongoose.connect('mongodb://localhost:27017/kpi-management', {
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Serve uploaded evidence files statically
-app.use('/uploads/evidence', express.static(path.join(__dirname, 'uploads/evidence')));
-
 // Session configuration
 app.use(session({
     secret: 'your-secret-key',
@@ -38,13 +30,15 @@ app.use(session({
 // Connect flash middleware
 app.use(flash());
 
-// View engine setup
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use(expressLayouts);
-app.set('layout', 'layouts/main');
-app.set('layout extractScripts', true);
-app.set('layout extractStyles', true);
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve uploaded evidence files statically
+const uploadsEvidencePath = path.join(__dirname, 'uploads/evidence');
+console.log('Serving uploaded evidence from:', uploadsEvidencePath);
+app.use('/uploads/evidence', express.static(uploadsEvidencePath));
 
 // Global middleware
 app.use((req, res, next) => {
@@ -58,6 +52,20 @@ app.use((req, res, next) => {
     res.locals.info_msg = req.flash('info');
     next();
 });
+
+// Set a more permissive Content Security Policy
+app.use((req, res, next) => {
+    res.setHeader('Content-Security-Policy', "default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com; script-src 'self' https://cdn.jsdelivr.net");
+    next();
+});
+
+// View engine setup
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(expressLayouts);
+app.set('layout', 'layouts/main');
+app.set('layout extractScripts', true);
+app.set('layout extractStyles', true);
 
 // Routes
 app.use('/', require('./routes/index'));
