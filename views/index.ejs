@@ -4,7 +4,7 @@
     <div class="col-md-8 text-center">
         <h1 class="display-4 mb-4 custom-heading">Welcome to KPIPro</h1>
         <p class="lead mb-4">Track, manage, and achieve your key performance indicators efficiently.</p>
-        
+
         <% if (!locals.user) { %>
             <div class="d-flex justify-content-center gap-3">
                 <a href="/auth/login" class="btn btn-primary btn-lg">Login</a>
@@ -14,8 +14,10 @@
             <div class="d-flex justify-content-center gap-3">
                 <% if (locals.user.role === 'manager') { %>
                     <a href="/manager/dashboard" class="btn btn-primary btn-lg">Go to Dashboard</a>
+                    <a href="/manager/kpi/create" class="btn btn-outline-primary btn-lg">Create KPI</a>
                 <% } else { %>
                     <a href="/staff/dashboard" class="btn btn-primary btn-lg">Go to Dashboard</a>
+                    <a href="/staff/dashboard" class="btn btn-outline-primary btn-lg">View My KPIs</a>
                 <% } %>
             </div>
         <% } %>

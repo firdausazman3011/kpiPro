@@ -25,22 +25,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Apply authentication middleware to all routes
-router.use(isAuthenticated);
-router.use(isStaff);
-
 // Staff Dashboard
-router.get('/dashboard', async (req, res) => {
+router.get('/dashboard', isAuthenticated, isStaff, async (req, res) => {
     try {
         // Ensure req.user is available, although middleware should handle this
-        if (!req.user || !req.user._id || !req.user.organization) {
-            console.error('Staff dashboard: req.user is undefined or missing organization');
+        if (!req.session.user || !req.session.user._id || !req.session.user.organization) {
+            console.error('Staff dashboard: req.session.user is undefined or missing organization');
             // Redirect to login or show an error, depending on desired behavior
             return res.redirect('/auth/login'); 
         }
 
         // Fetch KPIs assigned to the staff member and within their organization
-        const kpis = await KPI.find({ staff: req.user._id, organization: req.user.organization })
+        const kpis = await KPI.find({ staff: req.session.user._id, organization: req.session.user.organization })
             .populate('manager', 'name email')
             .sort({ createdAt: -1 });
 
@@ -56,7 +52,10 @@ router.get('/dashboard', async (req, res) => {
                 inProgressKPIs,
                 overdueKPIs
             },
-            user: req.user
+            user: req.session.user,
+            success_msg: typeof req.flash === 'function' ? req.flash('success') : [],
+            error_msg: typeof req.flash === 'function' ? req.flash('error') : [],
+            info_msg: typeof req.flash === 'function' ? req.flash('info') : []
         });
     } catch (error) {
         console.error('Dashboard error:', error);
@@ -65,18 +64,26 @@ router.get('/dashboard', async (req, res) => {
 });
 
 // View KPI Details
-router.get('/kpi/:id', async (req, res) => {
+router.get('/kpi/:id', isAuthenticated, isStaff, async (req, res) => {
     try {
         // Fetch KPI and ensure it's assigned to the staff and within their organization
-        const kpi = await KPI.findOne({ _id: req.params.id, staff: req.user._id, organization: req.user.organization })
+        const kpi = await KPI.findOne({ _id: req.params.id, staff: req.session.user._id, organization: req.session.user.organization })
             .populate('manager', 'name email')
-            .populate('staff', 'name email');
+            .populate('staff', 'name email')
+            .populate('comments.user', 'name'); // Ensure comments user is populated if used in details view
         
         if (!kpi) {
             return res.status(404).render('error', { error: 'KPI not found or not authorized' });
         }
 
-        res.render('staff/kpi-details', { kpi });
+        // Pass flash messages and user to the template
+        res.render('staff/kpi-details', {
+            kpi,
+            user: req.session.user,
+            success_msg: typeof req.flash === 'function' ? req.flash('success') : [],
+            error_msg: typeof req.flash === 'function' ? req.flash('error') : [],
+            info_msg: typeof req.flash === 'function' ? req.flash('info') : []
+        });
     } catch (error) {
         console.error('KPI details error:', error);
         res.status(500).render('error', { error: 'Error loading KPI details' });
@@ -84,7 +91,7 @@ router.get('/kpi/:id', async (req, res) => {
 });
 
 // Update KPI Progress
-router.post('/kpi/:id/update', async (req, res) => {
+router.post('/kpi/:id/update', isAuthenticated, isStaff, async (req, res) => {
     try {
         const { currentValue, comment } = req.body;
         console.log('Attempting to update KPI:', req.params.id);
@@ -92,7 +99,7 @@ router.post('/kpi/:id/update', async (req, res) => {
         console.log('Comment:', comment);
 
         // Find KPI and ensure it's assigned to the staff and within their organization
-        const kpi = await KPI.findOne({ _id: req.params.id, staff: req.user._id, organization: req.user.organization });
+        const kpi = await KPI.findOne({ _id: req.params.id, staff: req.session.user._id, organization: req.session.user.organization });
         
         if (!kpi) {
             console.log('KPI not found or not authorized');
@@ -143,7 +150,7 @@ router.post('/kpi/:id/update', async (req, res) => {
         if (comment) {
             console.log('Adding comment');
             kpi.comments.push({
-                user: req.user._id,
+                user: req.session.user._id,
                 text: comment
             });
         }
@@ -158,18 +165,18 @@ router.post('/kpi/:id/update', async (req, res) => {
 });
 
 // Add Comment to KPI
-router.post('/kpi/:id/comment', async (req, res) => {
+router.post('/kpi/:id/comment', isAuthenticated, isStaff, async (req, res) => {
     try {
         const { comment } = req.body;
         // Find KPI and ensure it's assigned to the staff and within their organization
-        const kpi = await KPI.findOne({ _id: req.params.id, staff: req.user._id, organization: req.user.organization });
+        const kpi = await KPI.findOne({ _id: req.params.id, staff: req.session.user._id, organization: req.session.user.organization });
         
         if (!kpi) {
             return res.status(404).render('error', { error: 'KPI not found or not authorized' });
         }
 
         kpi.comments.push({
-            user: req.user._id,
+            user: req.session.user._id,
             text: comment
         });
 
@@ -182,15 +189,15 @@ router.post('/kpi/:id/comment', async (req, res) => {
 });
 
 // Upload Evidence for KPI
-router.post('/kpi/:id/upload-evidence', upload.single('kpiEvidence'), async (req, res) => {
+router.post('/kpi/:id/upload-evidence', isAuthenticated, isStaff, upload.single('kpiEvidence'), async (req, res) => {
     try {
         // Ensure req.user is available and has organization
-        if (!req.user || !req.user._id || !req.user.organization) {
+        if (!req.session.user || !req.session.user._id || !req.session.user.organization) {
             return res.status(401).render('error', { error: 'User not authenticated or missing organization' });
         }
 
         // Find KPI and ensure it's assigned to the staff and within their organization
-        const kpi = await KPI.findOne({ _id: req.params.id, staff: req.user._id, organization: req.user.organization });
+        const kpi = await KPI.findOne({ _id: req.params.id, staff: req.session.user._id, organization: req.session.user.organization });
         
         if (!kpi) {
             // If KPI not found or not authorized, remove the uploaded file

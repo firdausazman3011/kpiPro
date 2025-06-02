@@ -16,6 +16,7 @@ const transporter = nodemailer.createTransport({
 
 // Login form
 router.get('/login', (req, res) => {
+
     if (req.session.user) {
         return res.redirect('/');
     }
