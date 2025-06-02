@@ -1,0 +1,106 @@
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Total KPIs</h5>
+                <h2 class="display-4"><%= stats.totalKPIs %></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">In Progress</h5>
+                <h2 class="display-4"><%= stats.inProgressKPIs %></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Completed</h5>
+                <h2 class="display-4"><%= stats.completedKPIs %></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Overdue</h5>
+                <h2 class="display-4"><%= stats.overdueKPIs %></h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">My KPIs</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Assigned By</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (kpis && kpis.length > 0) { %>
+                                <% kpis.forEach(kpi => { %>
+                                    <tr>
+                                        <td><%= kpi.title %></td>
+                                        <td><%= kpi.category.name %></td>
+                                         <td><%= kpi.manager.name %></td>
+                                        <td><%= new Date(kpi.startDate).toLocaleDateString() %></td>
+                                        <td><%= new Date(kpi.endDate).toLocaleDateString() %></td>
+                                        <td>
+                                            <span class="badge bg-<%= kpi.status === 'completed' ? 'success' :
+                                                kpi.status === 'in-progress' ? 'primary' : kpi.status === 'overdue' ? 'danger' : 'warning' %>">
+                                                <%= kpi.status.replace('_', ' ') %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: <%= kpi.progress %>%;"
+                                                    aria-valuenow="<%= kpi.progress %>"
+                                                    aria-valuemin="0"
+                                                    aria-valuemax="100">
+                                                    <%= kpi.progress %>%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/staff/kpi/<%= kpi._id %>" class="btn btn-sm btn-info">View Details</a>
+                                                <% if (kpi.status !== 'completed' && kpi.status !== 'overdue') { %>
+                                                <a href="/staff/kpi/<%= kpi._id %>/update" class="btn btn-sm btn-warning">Update Progress</a>
+                                                <% } %>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8">No KPIs assigned yet.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% /* The script for deleteStaff is not needed here */ %> 

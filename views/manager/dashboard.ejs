@@ -1,0 +1,127 @@
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Total KPIs</h5>
+                <h2 class="display-4"><%= stats.totalKPIs %></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Active KPIs</h5>
+                <h2 class="display-4"><%= stats.activeKPIs %></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Completed KPIs</h5>
+                <h2 class="display-4"><%= stats.completedKPIs %></h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent KPIs</h5>
+                <a href="/manager/kpi/create" class="btn btn-primary btn-sm">Create New KPI</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Assigned To</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% kpis.forEach(kpi => { %>
+                                <tr>
+                                    <td><a href="/manager/kpi/<%= kpi._id %>"><%= kpi.title %></a></td>
+                                    <td><%= kpi.staff ? kpi.staff.name : 'N/A' %></td>
+                                    <td><%= new Date(kpi.startDate).toLocaleDateString() %></td>
+                                    <td><%= new Date(kpi.endDate).toLocaleDateString() %></td>
+                                    <td>
+                                        <span class="badge bg-<%= kpi.status === 'completed' ? 'success' : 
+                                            kpi.status === 'in_progress' ? 'primary' : 'warning' %>">
+                                            <%= kpi.status.replace('_', ' ') %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                style="width: <%= kpi.progress %>%;" 
+                                                aria-valuenow="<%= kpi.progress %>" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100">
+                                                <%= kpi.progress %>%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/manager/kpi/<%= kpi._id %>" class="btn btn-sm btn-info">View</a>
+                                            <a href="/manager/kpi/<%= kpi._id %>/edit" class="btn btn-sm btn-warning">Edit</a>
+                                            <button class="btn btn-sm btn-danger" 
+                                                    onclick="deleteKpi('<%= kpi._id %>')">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Total Staff</h5>
+            </div>
+            <div class="card-body">
+                <h2 class="display-4"><%= stats.totalStaff %></h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteKpi(kpiId) {
+    if (confirm('Are you sure you want to delete this KPI?')) {
+        fetch(`/manager/kpi/${kpiId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Error deleting KPI');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting KPI');
+        });
+    }
+}
+</script> 

@@ -1,0 +1,28 @@
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Edit Department</h5>
+            </div>
+            <div class="card-body">
+                <% if (locals.error) { %>
+                    <div class="alert alert-danger">
+                        <%= error %>
+                    </div>
+                <% } %>
+
+                <form action="/manager/departments/<%= department._id %>/edit" method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Department Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="<%= department.name %>" required>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Update Department</button>
+                        <a href="/manager/departments" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 

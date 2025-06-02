@@ -1,0 +1,53 @@
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="display-4 mb-4 custom-heading">Welcome to KPIPro</h1>
+        <p class="lead mb-4">Track, manage, and achieve your key performance indicators efficiently.</p>
+        
+        <% if (!locals.user) { %>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/auth/login" class="btn btn-primary btn-lg">Login</a>
+                <a href="/auth/register" class="btn btn-outline-primary btn-lg">Register</a>
+            </div>
+        <% } else { %>
+            <div class="d-flex justify-content-center gap-3">
+                <% if (locals.user.role === 'manager') { %>
+                    <a href="/manager/dashboard" class="btn btn-primary btn-lg">Go to Dashboard</a>
+                <% } else { %>
+                    <a href="/staff/dashboard" class="btn btn-primary btn-lg">Go to Dashboard</a>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">Track Performance</h5>
+                <p class="card-text">Monitor and track your KPIs in real-time with our intuitive dashboard.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-tasks fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">Manage Goals</h5>
+                <p class="card-text">Set, manage, and achieve your performance goals effectively.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">Team Collaboration</h5>
+                <p class="card-text">Work together with your team to achieve common objectives.</p>
+            </div>
+        </div>
+    </div>
+</div> 

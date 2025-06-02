@@ -1,0 +1,23 @@
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Error</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">Oops! Something went wrong</h4>
+                    <p><%= locals.message || 'An unexpected error occurred' %></p>
+                    <% if (locals.error && error.stack) { %>
+                        <hr>
+                        <pre class="mb-0"><%= error.stack %></pre>
+                    <% } %>
+                </div>
+                <div class="text-center">
+                    <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+                    <a href="/" class="btn btn-primary">Go to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

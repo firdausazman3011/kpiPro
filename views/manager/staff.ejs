@@ -1,0 +1,118 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Staff Members</h5>
+                <a href="/manager/staff/create" class="btn btn-primary btn-sm">Add New Staff</a>
+            </div>
+            <div class="card-body">
+
+                <% // Search and Filter Form %>
+                <form action="/manager/staff" method="GET" class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="search" placeholder="Search by staff name" value="<%= currentSearch %>">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" name="department">
+                                <option value="">All Departments</option>
+                                <% departments.forEach(department => { %>
+                                    <option value="<%= department.name %>" <%= currentDepartment === department.name ? 'selected' : '' %>><%= department.name %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        </div>
+                    </div>
+                </form>
+
+                <% // Staff Table %>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Organization</th>
+                                <th>Department</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% staff.forEach(member => { %>
+                                <tr>
+                                    <td><%= member.name %></td>
+                                    <td><%= member.email %></td>
+                                    <td><%= member.organization %></td>
+                                    <td><%= member.department %></td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            <%= member.role %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/manager/staff/<%= member._id %>/edit" class="btn btn-sm btn-warning">Edit</a>
+                                            <button type="button" class="btn btn-sm btn-danger delete-staff-btn" 
+                                                    data-id="<%= member._id %>" 
+                                                    title="Delete this staff member" 
+                                                    style="cursor:pointer;">
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded and parsed');
+
+    // Function to handle the actual deletion logic
+    function deleteStaff(staffId) {
+        if (confirm('Are you sure you want to delete this staff member?')) {
+            fetch(`/manager/staff/${staffId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload(); // Reload on success
+                } else {
+                    alert(data.message || 'Error deleting staff member');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting staff member. Please try again.');
+            });
+        }
+    }
+
+    // Find all delete buttons and attach click event listeners
+    const deleteButtons = document.querySelectorAll('.delete-staff-btn');
+    console.log(`Found ${deleteButtons.length} delete buttons.`);
+
+    deleteButtons.forEach(button => {
+        console.log('Attaching listener to a delete button.');
+        button.addEventListener('click', function() {
+            console.log('Delete button clicked');
+            const staffId = this.getAttribute('data-id');
+            deleteStaff(staffId);
+        });
+    });
+
+}); // End of DOMContentLoaded listener
+</script> 

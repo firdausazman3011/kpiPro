@@ -1,0 +1,58 @@
+const isAuthenticated = locals.user !== null;
+console.log(locals.user);
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">KPIPro</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <% if (locals.user) { %>
+                    <% if (locals.user.role === 'manager') { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/manager/dashboard">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/manager/kpi/create">Create KPI</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/manager/staff">Staff</a>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/staff/dashboard">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/staff/dashboard">My KPIs</a>
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
+            <ul class="navbar-nav">
+                <% if (locals.user) { %>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <%= locals.user.name %>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/auth/profile">Profile</a></li>
+                            <% if (locals.user.role === 'manager') { %>
+                            <li><a class="dropdown-item" href="/manager/settings">Settings</a></li>
+                            <% } %>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/auth/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/register">Register</a>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav> 

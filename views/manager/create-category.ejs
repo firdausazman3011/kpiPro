@@ -1,0 +1,53 @@
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Create Category</h5>
+            </div>
+            <div class="card-body">
+                <% if (locals.error) { %>
+                    <div class="alert alert-danger">
+                        <%= error %>
+                    </div>
+                <% } %>
+                <form action="/manager/categories/create" method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="organization" class="form-label">Organization</label>
+                        <input type="text" class="form-control" id="organization" name="organization" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="weight" class="form-label">Weight (%)</label>
+                        <input type="number" class="form-control" id="weight" name="weight" min="0" max="100" required>
+                    </div>
+                    <div class="text-end">
+                        <a href="/manager/categories" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('createCategoryForm').addEventListener('submit', function(e) {
+    if (!validateForm('createCategoryForm')) {
+        e.preventDefault();
+        return;
+    }
+
+    const weight = parseInt(document.getElementById('weight').value);
+    if (weight < 0 || weight > 100) {
+        e.preventDefault();
+        showAlert('Weight must be between 0 and 100', 'danger');
+    }
+});
+</script> 
