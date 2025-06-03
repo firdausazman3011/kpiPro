@@ -83,9 +83,6 @@
                                         <td>
                                             <div class="btn-group">
                                                 <a href="/staff/kpi/<%= kpi._id %>" class="btn btn-sm btn-info">View Details</a>
-                                                <% if (kpi.status !== 'completed' && kpi.status !== 'overdue') { %>
-                                                <a href="/staff/kpi/<%= kpi._id %>/update" class="btn btn-sm btn-warning">Update Progress</a>
-                                                <% } %>
                                             </div>
                                         </td>
                                     </tr>
