@@ -1,24 +1,24 @@
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Create New KPI</h5>
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Create New KPI</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4 p-md-5">
                 <form action="/manager/kpi/create" method="POST" id="createKpiForm">
                     <div class="mb-3">
                         <label for="title" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="title" name="title" required>
+                        <input type="text" class="form-control form-control-lg" id="title" name="title" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        <textarea class="form-control form-control-lg" id="description" name="description" rows="3" required></textarea>
                     </div>
 
                     <div class="mb-3">
                         <label for="category" class="form-label">Category</label>
-                        <select class="form-select" id="category" name="category" required>
+                        <select class="form-select form-select-lg" id="category" name="category" required>
                             <option value="">Select Category</option>
                             <% categories.forEach(category => { %>
                                 <option value="<%= category._id %>"><%= category.name %></option>
@@ -28,7 +28,7 @@
 
                     <div class="mb-3">
                         <label for="assignedTo" class="form-label">Assign To</label>
-                        <select class="form-select" id="assignedTo" name="staffId" required>
+                        <select class="form-select form-select-lg" id="assignedTo" name="staffId" required>
                             <option value="">Select Staff</option>
                             <% staff.forEach(member => { %>
                                 <option value="<%= member._id %>"><%= member.name %> (<%= member.organization %>)</option>
@@ -40,20 +40,20 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="startDate" class="form-label">Start Date</label>
-                                <input type="date" class="form-control" id="startDate" name="startDate" required>
+                                <input type="date" class="form-control form-control-lg" id="startDate" name="startDate" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="endDate" class="form-label">End Date</label>
-                                <input type="date" class="form-control" id="endDate" name="endDate" required>
+                                <input type="date" class="form-control form-control-lg" id="endDate" name="endDate" required>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="measurementFrequency" class="form-label">Measurement Frequency</label>
-                        <select class="form-select" id="measurementFrequency" name="measurementFrequency" required>
+                        <select class="form-select form-select-lg" id="measurementFrequency" name="measurementFrequency" required>
                             <option value="">Select Frequency</option>
                             <option value="Daily">Daily</option>
                             <option value="Weekly">Weekly</option>
@@ -65,17 +65,17 @@
 
                     <div class="mb-3">
                         <label for="target" class="form-label">Target Value</label>
-                        <input type="number" class="form-control" id="target" name="target" required>
+                        <input type="number" class="form-control form-control-lg" id="target" name="target" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="unit" class="form-label">Unit of Measurement</label>
-                        <input type="text" class="form-control" id="unit" name="unit" required>
+                        <input type="text" class="form-control form-control-lg" id="unit" name="unit" required>
                     </div>
 
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Create KPI</button>
-                        <a href="/manager/dashboard" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-4">Create KPI</button>
+                        <a href="/manager/dashboard" class="btn btn-secondary btn-lg rounded-pill px-4">Cancel</a>
                     </div>
                 </form>
             </div>
@@ -90,7 +90,17 @@ document.getElementById('createKpiForm').addEventListener('submit', function(e) 
     
     if (endDate <= startDate) {
         e.preventDefault();
-        alert('End date must be after start date');
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorMessage.setAttribute('role', 'alert');
+        errorMessage.innerHTML = 'End date must be after start date<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+        
+        const form = document.getElementById('createKpiForm');
+        form.parentNode.insertBefore(errorMessage, form);
+        
+        setTimeout(() => {
+            errorMessage.remove();
+        }, 5000); // Remove after 5 seconds
     }
 });
 </script> 

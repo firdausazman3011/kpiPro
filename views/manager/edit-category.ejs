@@ -1,49 +1,47 @@
-<%- include('../layouts/main') %>
-
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Edit KPI Category</h5>
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Edit KPI Category</h5>
             </div>
-            <div class="card-body">
-                <form action="/category/<%= category._id %>/edit" method="POST" id="editCategoryForm">
+            <div class="card-body p-4 p-md-5">
+                <form action="/manager/categories/<%= category._id %>/edit" method="POST" id="editCategoryForm">
                     <div class="mb-3">
                         <label for="name" class="form-label">Category Name</label>
-                        <input type="text" class="form-control" id="name" name="name" 
+                        <input type="text" class="form-control form-control-lg" id="name" name="name" 
                                value="<%= category.name %>" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" 
+                        <textarea class="form-control form-control-lg" id="description" name="description" 
                                   rows="3" required><%= category.description %></textarea>
                     </div>
 
                     <div class="mb-3">
                         <label for="organization" class="form-label">Organization</label>
-                        <input type="text" class="form-control" id="organization" name="organization" 
-                               value="<%= category.organization %>" required>
+                        <input type="text" class="form-control form-control-lg" id="organization" name="organization" 
+                               value="<%= user.organization %>" readonly>
                     </div>
 
                     <div class="mb-3">
                         <label for="weight" class="form-label">Weight (%)</label>
-                        <input type="number" class="form-control" id="weight" name="weight" 
+                        <input type="number" class="form-control form-control-lg" id="weight" name="weight" 
                                value="<%= category.weight %>" min="0" max="100" required>
                         <div class="form-text">Enter a value between 0 and 100</div>
                     </div>
 
                     <div class="mb-3">
-                        <div class="form-check">
+                        <div class="form-check form-switch">
                             <input type="checkbox" class="form-check-input" id="isActive" 
                                    name="isActive" <%= category.isActive ? 'checked' : '' %>>
                             <label class="form-check-label" for="isActive">Active</label>
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Update Category</button>
-                        <a href="/category" class="btn btn-outline-secondary">Cancel</a>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-4">Update Category</button>
+                        <a href="/manager/categories" class="btn btn-secondary btn-lg rounded-pill px-4">Cancel</a>
                     </div>
                 </form>
             </div>
@@ -53,15 +51,20 @@
 
 <script>
 document.getElementById('editCategoryForm').addEventListener('submit', function(e) {
-    if (!validateForm('editCategoryForm')) {
-        e.preventDefault();
-        return;
-    }
-
     const weight = parseInt(document.getElementById('weight').value);
     if (weight < 0 || weight > 100) {
         e.preventDefault();
-        showAlert('Weight must be between 0 and 100', 'danger');
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        errorMessage.setAttribute('role', 'alert');
+        errorMessage.innerHTML = 'Weight must be between 0 and 100<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+        
+        const form = document.getElementById('editCategoryForm');
+        form.parentNode.insertBefore(errorMessage, form);
+        
+        setTimeout(() => {
+            errorMessage.remove();
+        }, 5000); // Remove after 5 seconds
     }
 });
 </script> 

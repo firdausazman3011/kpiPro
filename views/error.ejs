@@ -8,9 +8,13 @@
                 <div class="alert alert-danger">
                     <h4 class="alert-heading">Oops! Something went wrong</h4>
                     <p><%= locals.message || 'An unexpected error occurred' %></p>
-                    <% if (locals.error && error.stack) { %>
+                    <% if (locals.error && locals.error.message) { %>
                         <hr>
-                        <pre class="mb-0"><%= error.stack %></pre>
+                        <p class="mb-0"><strong>Error Details:</strong> <%= locals.error.message %></p>
+                    <% } %>
+                    <% if (locals.error && locals.error.stack && process.env.NODE_ENV === 'development') { %>
+                        <hr>
+                        <pre class="mb-0"><%= locals.error.stack %></pre>
                     <% } %>
                 </div>
                 <div class="text-center">

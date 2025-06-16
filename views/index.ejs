@@ -1,54 +1,124 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
-<div class="row justify-content-center">
-    <div class="col-md-8 text-center">
-        <h1 class="display-4 mb-4 custom-heading">Welcome to KPIPro</h1>
-        <p class="lead mb-4">Track, manage, and achieve your key performance indicators efficiently.</p>
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        color: white;
+        padding: 5rem 0;
+        margin: -2rem -1rem 3rem -1rem;
+        border-radius: 0 0 2rem 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .custom-heading {
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+    .lead {
+        font-size: 1.25rem;
+        opacity: 0.9;
+    }
+    .feature-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .feature-icon {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        margin-bottom: 1rem;
+    }
+    .btn {
+        padding: 0.8rem 2rem;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        border: none;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+    }
+    .btn-outline-primary {
+        border-width: 2px;
+    }
+    .btn-outline-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2);
+    }
+</style>
 
-        <% if (!locals.user) { %>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="/auth/login" class="btn btn-primary btn-lg">Login</a>
-                <a href="/auth/register" class="btn btn-outline-primary btn-lg">Manager Register</a>
-            </div>
-        <% } else { %>
-            <div class="d-flex justify-content-center gap-3">
-                <% if (locals.user.role === 'manager') { %>
-                    <a href="/manager/dashboard" class="btn btn-primary btn-lg">Go to Dashboard</a>
-                    <a href="/manager/kpi/create" class="btn btn-outline-primary btn-lg">Create KPI</a>
+<div class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="display-4 mb-4 custom-heading">Welcome to KPIPro</h1>
+                <p class="lead mb-5">Track, manage, and achieve your key performance indicators efficiently.</p>
+
+                <% if (!locals.user) { %>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/auth/login" class="btn btn-light btn-lg">Login</a>
+                        <a href="/auth/register" class="btn btn-outline-light btn-lg">Manager Register</a>
+                    </div>
                 <% } else { %>
-                    <a href="/staff/dashboard" class="btn btn-primary btn-lg">Go to Dashboard</a>
-                    <a href="/staff/dashboard" class="btn btn-outline-primary btn-lg">View My KPIs</a>
+                    <div class="d-flex justify-content-center gap-3">
+                        <% if (locals.user.role === 'manager') { %>
+                            <a href="/manager/dashboard" class="btn btn-light btn-lg">Go to Dashboard</a>
+                            <a href="/manager/kpi/create" class="btn btn-outline-light btn-lg">Create KPI</a>
+                        <% } else { %>
+                            <a href="/staff/dashboard" class="btn btn-light btn-lg">Go to Dashboard</a>
+                            <a href="/staff/dashboard" class="btn btn-outline-light btn-lg">View My KPIs</a>
+                        <% } %>
+                    </div>
                 <% } %>
             </div>
-        <% } %>
+        </div>
     </div>
 </div>
 
-<div class="row mt-5">
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-chart-line fa-3x mb-3 text-primary"></i>
-                <h5 class="card-title">Track Performance</h5>
-                <p class="card-text">Monitor and track your KPIs in real-time with our intuitive dashboard.</p>
+<div class="container">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon d-inline-block">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Track Performance</h5>
+                    <p class="card-text text-muted">Monitor and track your KPIs in real-time with our intuitive dashboard.</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-tasks fa-3x mb-3 text-primary"></i>
-                <h5 class="card-title">Manage Goals</h5>
-                <p class="card-text">Set, manage, and achieve your performance goals effectively.</p>
+        <div class="col-md-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon d-inline-block">
+                        <i class="fas fa-tasks fa-2x"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Manage Goals</h5>
+                    <p class="card-text text-muted">Set, manage, and achieve your performance goals effectively.</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-users fa-3x mb-3 text-primary"></i>
-                <h5 class="card-title">Team Collaboration</h5>
-                <p class="card-text">Work together with your team to achieve common objectives.</p>
+        <div class="col-md-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon d-inline-block">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Team Collaboration</h5>
+                    <p class="card-text text-muted">Work together with your team to achieve common objectives.</p>
+                </div>
             </div>
         </div>
     </div>

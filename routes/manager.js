@@ -46,7 +46,7 @@ router.get('/dashboard', async (req, res) => {
         res.render('manager/dashboard', { stats, kpis: filteredKpis, user: req.session.user });
     } catch (error) {
         console.error('Manager Dashboard Error:', error);
-        res.render('error', { error: error.message });
+        res.render('error', { message: 'Error loading manager dashboard', error: error });
     }
 });
 
@@ -58,7 +58,7 @@ router.get('/kpi/create', async (req, res) => {
         res.render('manager/create-kpi', { staff, categories });
     } catch (error) {
         console.error('Create KPI form error:', error);
-        res.status(500).render('error', { error: 'Error loading form' });
+        res.status(500).render('error', { message: 'Error loading KPI creation form', error: error });
     }
 });
 
@@ -84,7 +84,7 @@ router.post('/kpi/create', async (req, res) => {
         res.redirect('/manager/dashboard');
     } catch (error) {
         console.error('Create KPI error:', error);
-        res.status(500).render('error', { error: 'Error creating KPI' });
+        res.status(500).render('error', { message: 'Error creating KPI', error: error });
     }
 });
 
@@ -97,13 +97,29 @@ router.get('/kpi/:id', async (req, res) => {
             .populate('comments.user', 'name');
         
         if (!kpi) {
-            return res.status(404).render('error', { error: 'KPI not found or not authorized' });
+            return res.status(404).render('error', { message: 'KPI not found or not authorized', error: {} });
         }
 
         res.render('manager/kpi-details', { kpi });
     } catch (error) {
         console.error('Manager KPI details error:', error);
-        res.status(500).render('error', { error: 'Error loading KPI details' });
+        res.status(500).render('error', { message: 'Error loading KPI details', error: error });
+    }
+});
+
+// Delete KPI
+router.delete('/kpi/:id', async (req, res) => {
+    try {
+        const result = await KPI.deleteOne({ _id: req.params.id, manager: req.session.user._id });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ success: false, message: 'KPI not found or not authorized to delete.' });
+        }
+
+        res.json({ success: true, message: 'KPI deleted successfully.' });
+    } catch (error) {
+        console.error('Delete KPI error:', error);
+        res.status(500).json({ success: false, message: 'Error deleting KPI.' });
     }
 });
 
@@ -135,7 +151,7 @@ router.get('/staff', async (req, res) => {
         });
     } catch (error) {
         console.error('Manager Staff list error:', error);
-        res.render('error', { error: error.message });
+        res.render('error', { message: 'Error loading staff list', error: error });
     }
 });
 
@@ -146,7 +162,7 @@ router.get('/staff/create', async (req, res) => {
         res.render('manager/create-staff', { departments });
     } catch (error) {
         console.error('Create staff form error:', error);
-        res.status(500).render('error', { error: 'Error loading form' });
+        res.status(500).render('error', { message: 'Error loading staff creation form', error: error });
     }
 });
 
@@ -158,7 +174,8 @@ router.post('/staff/create', async (req, res) => {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.render('manager/create-staff', { 
-                error: 'Email already registered' 
+                error: 'Email already registered',
+                departments: await Department.find({ organization: req.session.user.organization, isActive: true })
             });
         }
 
@@ -174,14 +191,15 @@ router.post('/staff/create', async (req, res) => {
 
         if (role === 'staff' && !department) {
             return res.render('manager/create-staff', {
-                error: 'Department is required for staff members'
+                error: 'Department is required for staff members',
+                departments: await Department.find({ organization: req.session.user.organization, isActive: true })
             });
         }
 
         await user.save();
         res.redirect('/manager/staff');
     } catch (error) {
-        res.render('manager/create-staff', { error: error.message });
+        res.render('manager/create-staff', { message: 'Error creating staff member', error: error });
     }
 });
 
@@ -190,12 +208,12 @@ router.get('/staff/:id/edit', async (req, res) => {
     try {
         const staff = await User.findById(req.params.id);
         if (!staff) {
-            return res.render('error', { error: 'Staff member not found' });
+            return res.render('error', { message: 'Staff member not found', error: {} });
         }
         const departments = await Department.find({ organization: req.session.user.organization, isActive: true }); // Fetch active departments
         res.render('manager/edit-staff', { staff, departments }); // Pass departments to the view
     } catch (error) {
-        res.render('error', { error: error.message });
+        res.render('error', { message: 'Error loading staff edit form', error: error });
     }
 });
 
@@ -206,7 +224,7 @@ router.post('/staff/:id/edit', async (req, res) => {
         const staff = await User.findById(req.params.id);
         
         if (!staff) {
-            return res.render('error', { error: 'Staff member not found' });
+            return res.render('error', { message: 'Staff member not found', error: {} });
         }
 
         staff.name = name;
@@ -217,8 +235,11 @@ router.post('/staff/:id/edit', async (req, res) => {
 
         // Basic validation: ensure department is provided for staff
         if (staff.role === 'staff' && !staff.department) {
+            // Re-fetch departments if rendering the form again due to validation error
+            const departments = await Department.find({ organization: req.session.user.organization, isActive: true });
             return res.render('manager/edit-staff', {
                 staff: staff, // Pass the staff object back to the view
+                departments: departments,
                 error: 'Department is required for staff members'
             });
         }
@@ -226,7 +247,7 @@ router.post('/staff/:id/edit', async (req, res) => {
         await staff.save();
         res.redirect('/manager/staff');
     } catch (error) {
-        res.render('error', { error: error.message });
+        res.render('error', { message: 'Error updating staff member', error: error });
     }
 });
 
@@ -235,7 +256,7 @@ router.post('/staff/:id/toggle-status', async (req, res) => {
     try {
         const staff = await User.findById(req.params.id);
         if (!staff) {
-            return res.render('error', { error: 'Staff member not found' });
+            return res.render('error', { message: 'Staff member not found', error: {} });
         }
 
         // If active is undefined, set it to false, otherwise toggle it
@@ -243,7 +264,7 @@ router.post('/staff/:id/toggle-status', async (req, res) => {
         await staff.save();
         res.redirect('/manager/staff');
     } catch (error) {
-        res.render('error', { error: error.message });
+        res.render('error', { message: 'Error toggling staff status', error: error });
     }
 });
 
@@ -255,7 +276,7 @@ router.get('/kpi/:id/edit', async (req, res) => {
         
         // Ensure the KPI belongs to the manager's organization
         if (!kpi || kpi.organization !== req.session.user.organization) { 
-            return res.status(404).render('error', { error: 'KPI not found or not authorized' });
+            return res.status(404).render('error', { message: 'KPI not found or not authorized', error: {} });
         }
 
         // Fetch staff and categories for the manager's organization
@@ -264,18 +285,17 @@ router.get('/kpi/:id/edit', async (req, res) => {
 
         res.render('manager/edit-kpi', { kpi, staff, categories }); // Pass categories to the view
     } catch (error) {
-        console.error('Edit KPI form error:', error);
-        res.status(500).render('error', { error: 'Error loading form' });
+        res.status(500).render('error', { message: 'Error loading KPI edit form', error: error });
     }
 });
 
 router.post('/kpi/:id/edit', async (req, res) => {
     try {
-        const { title, description, category, target, unit, staffId, startDate, endDate, measurementFrequency } = req.body;
+        const { title, description, category, target, unit, staffId, startDate, endDate, measurementFrequency, status } = req.body;
         const kpi = await KPI.findOne({ _id: req.params.id, organization: req.session.user.organization, manager: req.session.user._id });
 
         if (!kpi) {
-            return res.status(404).render('error', { error: 'KPI not found or not authorized' });
+            return res.status(404).render('error', { message: 'KPI not found or not authorized', error: {} });
         }
 
         kpi.title = title;
@@ -287,141 +307,87 @@ router.post('/kpi/:id/edit', async (req, res) => {
         kpi.startDate = startDate;
         kpi.endDate = endDate;
         kpi.measurementFrequency = measurementFrequency;
+        kpi.status = status; // Manager can directly set status
+
+        kpi.calculateProgress(); // Recalculate based on new values
+        kpi.updateStatus(); // Update status if necessary
 
         await kpi.save();
         res.redirect('/manager/dashboard');
     } catch (error) {
-        console.error('Edit KPI error:', error);
-        res.status(500).render('error', { error: 'Error updating KPI' });
-    }
-});
-
-// Delete KPI
-router.post('/kpi/:id/delete', async (req, res) => {
-    try {
-        await KPI.findByIdAndDelete(req.params.id);
-        res.redirect('/manager/dashboard');
-    } catch (error) {
-        console.error('Delete KPI error:', error);
-        res.status(500).render('error', { error: 'Error deleting KPI' });
+        res.status(500).render('error', { message: 'Error updating KPI', error: error });
     }
 });
 
 // Category Management
 router.get('/categories', async (req, res) => {
     try {
-        // Fetch categories only for the manager's organization
-        const categories = await KpiCategory.find({ organization: req.session.user.organization })
-            .populate('createdBy', 'name') // Consider populating createdBy only if needed and filtering by organization
-            .sort({ createdAt: -1 });
+        const categories = await KpiCategory.find({ organization: req.session.user.organization, isActive: true }).sort({ name: 1 });
         res.render('manager/categories', { categories });
     } catch (error) {
-        console.error('Categories list error:', error);
-        res.status(500).render('error', { error: 'Error loading categories' });
+        res.render('error', { message: 'Error loading KPI categories', error: error });
     }
 });
 
 // Create category form
 router.get('/categories/create', (req, res) => {
-    res.render('manager/create-category');
+    res.render('manager/create-category', { user: req.session.user });
 });
 
 // Create category
 router.post('/categories/create', async (req, res) => {
     try {
-        const { name, description, organization, weight } = req.body;
-        
-        // Check if user is authenticated
-        if (!req.session.user || !req.session.user._id) {
-            return res.status(401).render('error', { 
-                error: 'You must be logged in to create a category' 
-            });
-        }
-
-        // Check if category already exists
-        const existingCategory = await KpiCategory.findOne({ name });
+        const { name, description, weight } = req.body;
+        const existingCategory = await KpiCategory.findOne({ name, organization: req.session.user.organization });
         if (existingCategory) {
-            return res.render('manager/create-category', { 
-                error: 'Category with this name already exists' 
-            });
+            return res.render('manager/create-category', { error: 'Category with this name already exists.', user: req.session.user });
         }
-
-        const category = new KpiCategory({
-            name,
-            description,
-            organization: req.session.user.organization,
-            weight: parseInt(weight),
-            createdBy: req.session.user._id,
-            isActive: true
-        });
-
-        await category.save();
+        const newCategory = new KpiCategory({ name, description, organization: req.session.user.organization, isActive: true, weight });
+        await newCategory.save();
         res.redirect('/manager/categories');
     } catch (error) {
-        console.error('Create category error:', error);
-        res.status(500).render('error', { 
-            error: 'Error creating category. Please try again.' 
-        });
+        res.render('manager/create-category', { message: 'Error creating category', error: error, user: req.session.user });
     }
 });
 
 // Edit category form
 router.get('/categories/:id/edit', async (req, res) => {
     try {
-        // Find category and ensure it belongs to the manager's organization
         const category = await KpiCategory.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!category) {
-            return res.status(404).render('error', { error: 'Category not found or not authorized' });
+            return res.status(404).render('error', { message: 'Category not found or not authorized', error: {} });
         }
-        res.render('manager/edit-category', { category });
+        res.render('manager/edit-category', { category, user: req.session.user });
     } catch (error) {
-        console.error('Edit category form error:', error);
-        res.status(500).render('error', { error: 'Error loading form' });
+        res.render('error', { message: 'Error loading category edit form', error: error });
     }
 });
 
 // Update category
 router.post('/categories/:id/edit', async (req, res) => {
     try {
-        const { name, description, organization: org, weight } = req.body; // Changed from department to organization and renamed organization to org to avoid conflict
-        
-        // Find category and ensure it belongs to the manager's organization
+        const { name, description, isActive } = req.body;
         const category = await KpiCategory.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!category) {
-            return res.status(404).render('error', { error: 'Category not found or not authorized' });
+            return res.status(404).render('error', { message: 'Category not found or not authorized', error: {} });
         }
-
-        // Check if name is being changed and if it conflicts with another category within the same organization
-        if (name !== category.name) {
-            const existingCategory = await KpiCategory.findOne({ name, organization: req.session.user.organization });
-            if (existingCategory) {
-                return res.render('manager/edit-category', { 
-                    category,
-                    error: 'Category with this name already exists in your organization' 
-                });
-            }
-        }
-
         category.name = name;
         category.description = description;
-        category.organization = org; // Update the organization field
-        category.weight = weight;
-
+        category.isActive = isActive === 'on'; // Checkbox value
         await category.save();
         res.redirect('/manager/categories');
     } catch (error) {
-        console.error('Update category error:', error);
-        res.status(500).render('error', { error: 'Error updating category' });
+        res.render('error', { message: 'Error updating category', error: error });
     }
 });
 
 // Delete category
-router.post('/categories/:id/delete', async (req, res) => {
+router.post('/category/:id/delete', async (req, res) => {
     try {
         // Find category and ensure it belongs to the manager's organization
         const category = await KpiCategory.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!category) {
-            return res.status(404).render('error', { error: 'Category not found or not authorized' });
+            return res.status(404).render('error', { message: 'Category not found or not authorized', error: {} });
         }
 
         // Check if category is being used in any KPIs within the manager's organization
@@ -436,17 +402,17 @@ router.post('/categories/:id/delete', async (req, res) => {
         res.redirect('/manager/categories');
     } catch (error) {
         console.error('Delete category error:', error);
-        res.status(500).render('error', { error: 'Error deleting category' });
+        res.status(500).render('error', { message: 'Error deleting category', error: error });
     }
 });
 
 // Toggle category status
-router.post('/categories/:id/toggle-status', async (req, res) => {
+router.post('/category/:id/toggle-status', async (req, res) => {
     try {
         // Find category and ensure it belongs to the manager's organization
         const category = await KpiCategory.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!category) {
-            return res.status(404).render('error', { error: 'Category not found or not authorized' });
+            return res.status(404).render('error', { message: 'Category not found or not authorized', error: {} });
         }
 
         category.isActive = !category.isActive;
@@ -454,121 +420,78 @@ router.post('/categories/:id/toggle-status', async (req, res) => {
         res.redirect('/manager/categories');
     } catch (error) {
         console.error('Toggle category status error:', error);
-        res.status(500).render('error', { error: 'Error updating category status' });
+        res.status(500).render('error', { message: 'Error updating category status', error: error });
     }
 });
 
 // Department Management
 router.get('/departments', async (req, res) => {
     try {
-        // Fetch departments only for the manager's organization
-        const departments = await Department.find({ organization: req.session.user.organization })
-            .populate('createdBy', 'name') // Populate createdBy user's name
-            .sort({ createdAt: -1 });
+        const departments = await Department.find({ organization: req.session.user.organization, isActive: true }).sort({ name: 1 });
         res.render('manager/departments', { departments });
     } catch (error) {
-        console.error('Departments list error:', error);
-        res.status(500).render('error', { error: 'Error loading departments' });
+        res.render('error', { message: 'Error loading departments', error: error });
     }
 });
 
 // Create department form
 router.get('/departments/create', (req, res) => {
-    res.render('manager/create-department');
+    res.render('manager/create-department', { user: req.session.user });
 });
 
 // Create department
 router.post('/departments/create', async (req, res) => {
     try {
-        const { name, description } = req.body; // Assuming department only has name and organization for now
-        
-        // Check if user is authenticated (already done by middleware, but good practice)
-        if (!req.session.user || !req.session.user._id) {
-            return res.status(401).render('error', { 
-                error: 'You must be logged in to create a department' 
-            });
-        }
-
-        // Check if department already exists within the organization
+        const { name } = req.body;
         const existingDepartment = await Department.findOne({ name, organization: req.session.user.organization });
         if (existingDepartment) {
-            return res.render('manager/create-department', { 
-                error: 'Department with this name already exists in your organization' 
-            });
+            return res.render('manager/create-department', { error: 'Department with this name already exists.', user: req.session.user });
         }
-
-        const department = new Department({
-            name,
-            organization: req.session.user.organization,
-            createdBy: req.session.user._id,
-            isActive: true
-        });
-
-        await department.save();
+        const newDepartment = new Department({ name, organization: req.session.user.organization, isActive: true });
+        await newDepartment.save();
         res.redirect('/manager/departments');
     } catch (error) {
-        console.error('Create department error:', error);
-        res.status(500).render('error', { 
-            error: 'Error creating department. Please try again.' 
-        });
+        res.render('manager/create-department', { message: 'Error creating department', error: error, user: req.session.user });
     }
 });
 
 // Edit department form
 router.get('/departments/:id/edit', async (req, res) => {
     try {
-        // Find department and ensure it belongs to the manager's organization
         const department = await Department.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!department) {
-            return res.status(404).render('error', { error: 'Department not found or not authorized' });
+            return res.status(404).render('error', { message: 'Department not found or not authorized', error: {} });
         }
-        res.render('manager/edit-department', { department });
+        res.render('manager/edit-department', { department, user: req.session.user });
     } catch (error) {
-        console.error('Edit department form error:', error);
-        res.status(500).render('error', { error: 'Error loading form' });
+        res.render('error', { message: 'Error loading department edit form', error: error });
     }
 });
 
 // Update department
 router.post('/departments/:id/edit', async (req, res) => {
     try {
-        const { name } = req.body; // Assuming only name is editable for now
-        
-        // Find department and ensure it belongs to the manager's organization
+        const { name, isActive } = req.body;
         const department = await Department.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!department) {
-            return res.status(404).render('error', { error: 'Department not found or not authorized' });
+            return res.status(404).render('error', { message: 'Department not found or not authorized', error: {} });
         }
-
-        // Check if name is being changed and if it conflicts with another department within the same organization
-        if (name !== department.name) {
-            const existingDepartment = await Department.findOne({ name, organization: req.session.user.organization });
-            if (existingDepartment) {
-                return res.render('manager/edit-department', { 
-                    department,
-                    error: 'Department with this name already exists in your organization' 
-                });
-            }
-        }
-
         department.name = name;
-        // department.organization = req.session.user.organization; // Organization should not be changed
-        
+        department.isActive = isActive === 'on';
         await department.save();
         res.redirect('/manager/departments');
     } catch (error) {
-        console.error('Update department error:', error);
-        res.status(500).render('error', { error: 'Error updating department' });
+        res.render('error', { message: 'Error updating department', error: error });
     }
 });
 
 // Delete department
-router.post('/departments/:id/delete', async (req, res) => {
+router.post('/department/:id/delete', async (req, res) => {
     try {
         // Find department and ensure it belongs to the manager's organization
         const department = await Department.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!department) {
-            return res.status(404).render('error', { error: 'Department not found or not authorized' });
+            return res.status(404).render('error', { message: 'Department not found or not authorized', error: {} });
         }
 
         // TODO: Add check if department is being used by any staff before deleting
@@ -583,17 +506,17 @@ router.post('/departments/:id/delete', async (req, res) => {
         res.redirect('/manager/departments');
     } catch (error) {
         console.error('Delete department error:', error);
-        res.status(500).render('error', { error: 'Error deleting department' });
+        res.status(500).render('error', { message: 'Error deleting department', error: error });
     }
 });
 
 // Toggle department status (Optional - similar to category status)
-router.post('/departments/:id/toggle-status', async (req, res) => {
+router.post('/department/:id/toggle-status', async (req, res) => {
     try {
         // Find department and ensure it belongs to the manager's organization
         const department = await Department.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!department) {
-            return res.status(404).render('error', { error: 'Department not found or not authorized' });
+            return res.status(404).render('error', { message: 'Department not found or not authorized', error: {} });
         }
 
         department.isActive = !department.isActive;
@@ -601,7 +524,7 @@ router.post('/departments/:id/toggle-status', async (req, res) => {
         res.redirect('/manager/departments');
     } catch (error) {
         console.error('Toggle department status error:', error);
-        res.status(500).render('error', { error: 'Error updating department status' });
+        res.status(500).render('error', { message: 'Error updating department status', error: error });
     }
 });
 
@@ -640,14 +563,10 @@ router.delete('/staff/:id', async (req, res) => {
 // Manager Settings page
 router.get('/settings', async (req, res) => {
     try {
-        // We will pass any necessary data for the settings page here later
-        res.render('manager/settings', {});
+        // Manager profile is just a placeholder for now, might expand later
+        res.render('manager/settings', { user: req.session.user });
     } catch (error) {
-        console.error('Settings page error:', error);
-        res.status(500).render('error', { 
-            message: 'Error loading settings page',
-            error: process.env.NODE_ENV === 'development' ? error : {}
-        });
+        res.render('error', { message: 'Error loading settings page', error: error });
     }
 });
 

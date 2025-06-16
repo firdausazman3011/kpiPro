@@ -1,26 +1,26 @@
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Create New Department</h5>
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Create New Department</h5>
             </div>
-            <div class="card-body">
-                <% if (locals.error) { %>
-                    <div class="alert alert-danger">
+            <div class="card-body p-4 p-md-5">
+                <% if (typeof error !== 'undefined' && error.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <%= error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <% } %>
 
                 <form action="/manager/departments/create" method="POST">
                     <div class="mb-3">
                         <label for="name" class="form-label">Department Name</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
+                        <input type="text" class="form-control form-control-lg" id="name" name="name" required>
                     </div>
                     
-
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Create Department</button>
-                        <a href="/manager/departments" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-4">Create Department</button>
+                        <a href="/manager/departments" class="btn btn-secondary btn-lg rounded-pill px-4">Cancel</a>
                     </div>
                 </form>
             </div>

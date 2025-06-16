@@ -122,8 +122,16 @@ router.post('/kpi/:id/update', isAuthenticated, isStaff, async (req, res) => {
             const errorMessage = `This KPI can only be updated ${kpi.measurementFrequency.toLowerCase()}. Please wait until the next ${kpi.measurementFrequency.toLowerCase()} period.`;
             console.log('Update rejected:', errorMessage);
             // Use flash message for error and redirect back to the details page
-            req.flash('error', errorMessage);
-            return res.redirect(`/staff/kpi/${kpi._id}`);
+            if (typeof req.flash === 'function') {
+                req.flash('error', errorMessage);
+                return res.redirect(`/staff/kpi/${kpi._id}`);
+            } else {
+                // Fallback if req.flash is not available (shouldn't happen with proper setup)
+                return res.status(400).render('error', {
+                    message: errorMessage,
+                    error: { message: 'Action not allowed and flash system unavailable.' }
+                });
+            }
         }
 
         // Cap currentValue at target value
@@ -160,7 +168,7 @@ router.post('/kpi/:id/update', isAuthenticated, isStaff, async (req, res) => {
         res.redirect(`/staff/kpi/${kpi._id}`);
     } catch (error) {
         console.error('Update KPI error:', error);
-        res.status(500).render('error', { error: 'Error updating KPI' });
+        res.status(500).render('error', { message: 'Error updating KPI', error: error });
     }
 });
 
@@ -184,7 +192,7 @@ router.post('/kpi/:id/comment', isAuthenticated, isStaff, async (req, res) => {
         res.redirect(`/staff/kpi/${kpi._id}`);
     } catch (error) {
         console.error('Add comment error:', error);
-        res.status(500).render('error', { error: 'Error adding comment' });
+        res.status(500).render('error', { message: 'Error adding comment', error: error });
     }
 });
 
@@ -204,12 +212,12 @@ router.post('/kpi/:id/upload-evidence', isAuthenticated, isStaff, upload.single(
             if (req.file) {
                 fs.unlinkSync(req.file.path);
             }
-            return res.status(404).render('error', { error: 'KPI not found or not authorized' });
+            return res.status(404).render('error', { message: 'KPI not found or not authorized', error: {} });
         }
 
         // Check if a file was actually uploaded
         if (!req.file) {
-            return res.status(400).render('error', { error: 'No file uploaded' });
+            return res.status(400).render('error', { message: 'No file uploaded', error: {} });
         }
 
         // Add evidence details to the KPI
@@ -227,7 +235,7 @@ router.post('/kpi/:id/upload-evidence', isAuthenticated, isStaff, upload.single(
         if (req.file) {
             fs.unlinkSync(req.file.path);
         }
-        res.status(500).render('error', { error: 'Error uploading evidence' });
+        res.status(500).render('error', { message: 'Error uploading evidence', error: error });
     }
 });
 

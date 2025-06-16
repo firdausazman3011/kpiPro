@@ -1,52 +1,52 @@
-<div class="row">
+<div class="row mb-4">
     <div class="col-md-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Departments</h5>
-                <a href="/manager/departments/create" class="btn btn-primary btn-sm">Add New Department</a>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Departments</h5>
+                <a href="/manager/departments/create" class="btn btn-primary btn-md rounded-pill px-4"><i class="fas fa-plus-circle me-2"></i>Add New Department</a>
             </div>
-            <div class="card-body">
-                <% if (locals.error) { %>
-                    <div class="alert alert-danger">
+            <div class="card-body p-0">
+                <% if (typeof error !== 'undefined' && error.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <%= error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <% } %>
 
                 <% if (departments && departments.length > 0) { %>
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Created By</th>
-                                    <th>Created At</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Created By</th>
+                                    <th scope="col">Created At</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <% departments.forEach(department => { %>
-                                    <tr>
+                                    <tr class="align-middle">
                                         <td><%= department.name %></td>
                                         <td><%= department.createdBy ? department.createdBy.name : 'N/A' %></td>
                                         <td><%= new Date(department.createdAt).toLocaleDateString() %></td>
                                         <td>
-                                            <span class="badge bg-<%= department.isActive ? 'success' : 'danger' %>">
+                                            <span class="badge bg-<%= department.isActive ? 'success' : 'danger' %> rounded-pill py-2 px-3">
                                                 <%= department.isActive ? 'Active' : 'Inactive' %>
                                             </span>
                                         </td>
                                         <td>
-                                            <div class="btn-group">
-                                                <a href="/manager/departments/<%= department._id %>/edit" class="btn btn-sm btn-warning">Edit</a>
+                                            <div class="d-flex gap-2">
+                                                <a href="/manager/departments/<%= department._id %>/edit" class="btn btn-outline-warning btn-sm rounded-pill"><i class="fas fa-edit"></i> Edit</a>
                                                 
                                                 <% if (department.isActive) { %>
-                                                    <button class="btn btn-sm btn-danger" onclick="toggleDepartmentStatus('<%= department._id %>', false)">Deactivate</button>
+                                                    <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="toggleDepartmentStatus('<%= department._id %>', false)"><i class="fas fa-toggle-off"></i> Deactivate</button>
                                                 <% } else { %>
-                                                    <button class="btn btn-sm btn-success" onclick="toggleDepartmentStatus('<%= department._id %>', true)">Activate</button>
+                                                    <button class="btn btn-outline-success btn-sm rounded-pill" onclick="toggleDepartmentStatus('<%= department._id %>', true)"><i class="fas fa-toggle-on"></i> Activate</button>
                                                 <% } %>
 
-                                                <% // Optional: Delete button - add logic later to prevent deletion if staff are assigned %>
-                                                <button class="btn btn-sm btn-secondary" onclick="deleteDepartment('<%= department._id %>')">Delete</button>
+                                                <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="deleteDepartment('<%= department._id %>')"><i class="fas fa-trash-alt"></i> Delete</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -55,7 +55,7 @@
                         </table>
                     </div>
                 <% } else { %>
-                    <p>No departments found for your organization.</p>
+                    <p class="px-4 py-3">No departments found for your organization.</p>
                 <% } %>
             </div>
         </div>

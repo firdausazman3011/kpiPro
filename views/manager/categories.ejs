@@ -1,30 +1,30 @@
-<div class="row">
+<div class="row mb-4">
     <div class="col-md-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">KPI Categories</h5>
-                <a href="/manager/categories/create" class="btn btn-primary btn-sm">Add New Category</a>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">KPI Categories</h5>
+                <a href="/manager/categories/create" class="btn btn-primary btn-md rounded-pill px-4"><i class="fas fa-plus-circle me-2"></i>Add New Category</a>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
                             <tr>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Actions</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% categories.forEach(category => { %>
-                                <tr>
+                                <tr class="align-middle">
                                     <td><%= category.name %></td>
                                     <td><%= category.description %></td>
                                     <td>
-                                        <div class="btn-group">
-                                            <a href="/manager/categories/<%= category._id %>/edit" class="btn btn-sm btn-warning">Edit</a>
-                                            <button class="btn btn-sm btn-danger" 
-                                                    onclick="deleteCategory('<%= category._id %>')">Delete</button>
+                                        <div class="d-flex gap-2">
+                                            <a href="/manager/categories/<%= category._id %>/edit" class="btn btn-outline-warning btn-sm rounded-pill"><i class="fas fa-edit"></i> Edit</a>
+                                            <button class="btn btn-outline-danger btn-sm rounded-pill" 
+                                                    onclick="deleteCategory('<%= category._id %>')"><i class="fas fa-trash-alt"></i> Delete</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -51,7 +51,7 @@ function deleteCategory(categoryId) {
             if (data.success) {
                 window.location.reload();
             } else {
-                alert('Error deleting category');
+                alert('Error deleting category: ' + (data.message || 'Unknown error'));
             }
         })
         .catch(error => {

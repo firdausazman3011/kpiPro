@@ -1,89 +1,93 @@
-<div class="card mb-4">
-    <div class="card-header">
-        <h5 class="mb-0">KPI Details</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <h4><%= kpi.title %></h4>
-                <p class="text-muted"><%= kpi.description %></p>
-                
-                <div class="mb-3">
-                    <strong>Target:</strong> <%= kpi.target %> <%= kpi.unit %>
-                </div>
-                <div class="mb-3">
-                    <strong>Current Value:</strong> <%= kpi.currentValue %> <%= kpi.unit %>
-                </div>
-                <div class="mb-3">
-                    <strong>Progress:</strong>
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar"
-                             style="width: <%= kpi.progress %>%;"
-                             aria-valuenow="<%= kpi.progress %>"
-                             aria-valuemin="0"
-                             aria-valuemax="100">
-                            <%= kpi.progress %>%
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">KPI Details</h5>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><%= kpi.title %></h4>
+                        <p class="text-muted"><%= kpi.description %></p>
+                        
+                        <div class="mb-3">
+                            <strong>Target:</strong> <%= kpi.target %> <%= kpi.unit %>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Current Value:</strong> <%= kpi.currentValue %> <%= kpi.unit %>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Progress:</strong>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar"
+                                     style="width: <%= kpi.progress %>%;"
+                                     aria-valuenow="<%= kpi.progress %>"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    <%= kpi.progress %>%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Status:</strong>
+                            <span class="badge bg-<%= kpi.status === 'completed' ? 'success' :
+                                                  kpi.status === 'in-progress' ? 'primary' :
+                                                  kpi.status === 'overdue' ? 'danger' : 'secondary' %>">
+                                <%= kpi.status %>
+                            </span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Start Date:</strong> <%= new Date(kpi.startDate).toLocaleDateString() %>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Due Date:</strong> <%= new Date(kpi.endDate).toLocaleDateString() %>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Measurement Frequency:</strong> <%= kpi.measurementFrequency %>
                         </div>
                     </div>
-                </div>
-                <div class="mb-3">
-                    <strong>Status:</strong>
-                    <span class="badge bg-<%= kpi.status === 'completed' ? 'success' :
-                                          kpi.status === 'in-progress' ? 'primary' :
-                                          kpi.status === 'overdue' ? 'danger' : 'secondary' %>">
-                        <%= kpi.status %>
-                    </span>
-                </div>
-                <div class="mb-3">
-                    <strong>Start Date:</strong> <%= new Date(kpi.startDate).toLocaleDateString() %>
-                </div>
-                <div class="mb-3">
-                    <strong>Due Date:</strong> <%= new Date(kpi.endDate).toLocaleDateString() %>
-                </div>
-                <div class="mb-3">
-                    <strong>Measurement Frequency:</strong> <%= kpi.measurementFrequency %>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Evidence</h5>
-                    </div>
-                    <div class="card-body">
-                        <% if (kpi.evidence && kpi.evidence.length > 0) { %>
-                            <ul class="list-unstyled">
-                                <% kpi.evidence.forEach(evidence => { %>
-                                    <li class="mb-2">
-                                        <a href="<%= evidence.filepath %>" target="_blank"><%= evidence.filename %></a>
-                                        <small class="text-muted d-block"><%= new Date(evidence.uploadedAt).toLocaleString() %></small>
-                                    </li>
-                                <% }); %>
-                            </ul>
-                        <% } else { %>
-                            <p class="text-muted">No evidence uploaded yet.</p>
-                        <% } %>
-                    </div>
-                </div>
-
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Comments</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="comments-list">
-                            <% if (kpi.comments && kpi.comments.length > 0) { %>
-                                <ul class="list-unstyled">
-                                    <% kpi.comments.forEach(comment => { %>
-                                        <li class="mb-2 p-2 border rounded bg-light">
-                                            <strong><%= comment.user.name || 'Anonymous' %>:</strong> <%= comment.text %>
-                                            <small class="text-muted d-block text-end"><%= new Date(comment.createdAt).toLocaleString() %></small>
-                                        </li>
-                                    <% }); %>
-                                </ul>
-                            <% } else { %>
-                                <p class="text-muted">No comments yet.</p>
-                            <% } %>
+        
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Evidence</h5>
+                            </div>
+                            <div class="card-body">
+                                <% if (kpi.evidence && kpi.evidence.length > 0) { %>
+                                    <ul class="list-unstyled">
+                                        <% kpi.evidence.forEach(evidence => { %>
+                                            <li class="mb-2">
+                                                <a href="<%= evidence.filepath %>" target="_blank"><%= evidence.filename %></a>
+                                                <small class="text-muted d-block"><%= new Date(evidence.uploadedAt).toLocaleString() %></small>
+                                            </li>
+                                        <% }); %>
+                                    </ul>
+                                <% } else { %>
+                                    <p class="text-muted">No evidence uploaded yet.</p>
+                                <% } %>
+                            </div>
+                        </div>
+        
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Comments</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="comments-list">
+                                    <% if (kpi.comments && kpi.comments.length > 0) { %>
+                                        <ul class="list-unstyled">
+                                            <% kpi.comments.forEach(comment => { %>
+                                                <li class="mb-2 p-2 border rounded bg-light">
+                                                    <strong><%= comment.user.name || 'Anonymous' %>:</strong> <%= comment.text %>
+                                                    <small class="text-muted d-block text-end"><%= new Date(comment.createdAt).toLocaleString() %></small>
+                                                </li>
+                                            <% }); %>
+                                        </ul>
+                                    <% } else { %>
+                                        <p class="text-muted">No comments yet.</p>
+                                    <% } %>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -93,49 +97,53 @@
 </div>
 
 <% // Historical Data Table %>
-<div class="card mt-4">
-    <div class="card-header">
-        <h5 class="mb-0">Historical Data</h5>
-    </div>
-    <div class="card-body">
-        <% if (kpi.historicalData && kpi.historicalData.length > 0) { %>
-            <div class="table-responsive">
-                <table class="table table-hover table-striped">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Value</th>
-                            <th>Target</th>
-                            <th>Variance</th>
-                            <th>Status</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% kpi.historicalData.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(dataPoint => { %>
-                            <tr>
-                                <td><%= new Date(dataPoint.date).toLocaleDateString() %></td>
-                                <td><%= dataPoint.value %></td>
-                                <td><%= dataPoint.target %></td>
-                                <% const variance = dataPoint.value - dataPoint.target; %>
-                                <td class="<%= variance >= 0 ? 'text-success' : 'text-danger' %>">
-                                    <%= variance >= 0 ? '+' : '' %><%= variance.toFixed(2) %>
-                                </td>
-                                <td>
-                                    <span class="badge bg-<%= dataPoint.status === 'completed' ? 'success' :
-                                                          dataPoint.status === 'in-progress' ? 'primary' :
-                                                          dataPoint.status === 'overdue' ? 'danger' : 'secondary' %>">
-                                        <%= dataPoint.status %>
-                                    </span>
-                                </td>
-                                <td><%= dataPoint.notes || 'N/A' %></td>
-                            </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Historical Data</h5>
             </div>
-        <% } else { %>
-            <p>No historical data available for this KPI.</p>
-        <% } %>
+            <div class="card-body p-0">
+                <% if (kpi.historicalData && kpi.historicalData.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Value</th>
+                                    <th>Target</th>
+                                    <th>Variance</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% kpi.historicalData.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(dataPoint => { %>
+                                    <tr>
+                                        <td><%= new Date(dataPoint.date).toLocaleDateString() %></td>
+                                        <td><%= dataPoint.value %></td>
+                                        <td><%= dataPoint.target %></td>
+                                        <% const variance = dataPoint.value - dataPoint.target; %>
+                                        <td class="<%= variance >= 0 ? 'text-success' : 'text-danger' %>">
+                                            <%= variance >= 0 ? '+' : '' %><%= variance.toFixed(2) %>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-<%= dataPoint.status === 'completed' ? 'success' :
+                                                                  dataPoint.status === 'in-progress' ? 'primary' :
+                                                                  dataPoint.status === 'overdue' ? 'danger' : 'secondary' %>">
+                                                <%= dataPoint.status %>
+                                            </span>
+                                        </td>
+                                        <td><%= dataPoint.notes || 'N/A' %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <p class="px-4 py-3">No historical data available for this KPI.</p>
+                <% } %>
+            </div>
+        </div>
     </div>
 </div> 

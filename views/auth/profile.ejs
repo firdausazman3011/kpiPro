@@ -1,43 +1,46 @@
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <% if (locals.error) { %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <%= error %>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-7 col-lg-6">
+        <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <%= success_msg %>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <% } %>
         
-        <% if (locals.success) { %>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <%= success %>
+        <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <%= error_msg %>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <% } %>
 
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">Profile</h4>
-            </div>
-            <div class="card-body">
+        <div class="card border-0 shadow-lg rounded-3">
+            <div class="card-body p-4 p-md-5">
+                <h3 class="card-title text-center mb-4 fw-bold">Profile</h3>
+            
                 <form action="/auth/profile" method="POST">
                     <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
+                        <label for="name" class="form-label fw-medium">Name</label>
+                        <input type="text" class="form-control form-control-lg" id="name" name="name" value="<%= user.name %>" required>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required>
+                        <label for="email" class="form-label fw-medium">Email</label>
+                        <input type="email" class="form-control form-control-lg" id="email" name="email" value="<%= user.email %>" required>
                     </div>
                     <div class="mb-3">
-                        <label for="department" class="form-label">Department</label>
-                        <input type="text" class="form-control" id="department" name="department" value="<%= user.department %>" required>
+                        <label for="organization" class="form-label fw-medium">Organization</label>
+                        <input type="text" class="form-control form-control-lg" id="organization" name="organization" value="<%= user.organization %>" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Role</label>
-                        <input type="text" class="form-control" value="<%= user.role %>" readonly>
+                        <label for="department" class="form-label fw-medium">Department</label>
+                        <input type="text" class="form-control form-control-lg" id="department" name="department" value="<%= user.department %>" readonly>
                     </div>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Role</label>
+                        <input type="text" class="form-control form-control-lg" value="<%= user.role %>" readonly>
+                    </div>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill">Update Profile</button>
                     </div>
                 </form>
             </div>
