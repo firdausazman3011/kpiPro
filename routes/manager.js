@@ -447,7 +447,7 @@ router.post('/departments/create', async (req, res) => {
         if (existingDepartment) {
             return res.render('manager/create-department', { error: 'Department with this name already exists.', user: req.session.user });
         }
-        const newDepartment = new Department({ name, organization: req.session.user.organization, isActive: true });
+        const newDepartment = new Department({ name, organization: req.session.user.organization, createdBy: req.session.user._id, isActive: true });
         await newDepartment.save();
         res.redirect('/manager/departments');
     } catch (error) {
@@ -486,7 +486,7 @@ router.post('/departments/:id/edit', async (req, res) => {
 });
 
 // Delete department
-router.post('/department/:id/delete', async (req, res) => {
+router.post('/departments/:id/delete', async (req, res) => {
     try {
         // Find department and ensure it belongs to the manager's organization
         const department = await Department.findOne({ _id: req.params.id, organization: req.session.user.organization });
@@ -497,34 +497,32 @@ router.post('/department/:id/delete', async (req, res) => {
         // TODO: Add check if department is being used by any staff before deleting
         const staffCount = await User.countDocuments({ department: department.name, organization: req.session.user.organization });
         if (staffCount > 0) {
-             return res.status(400).render('error', { 
-                error: 'Cannot delete department that has assigned staff' 
+            return res.status(400).render('error', {
+                error: 'Cannot delete department that is being used by staff within your organization'
             });
         }
 
         await department.deleteOne();
-        res.redirect('/manager/departments');
+        res.json({ success: true, message: 'Department deleted successfully.' });
     } catch (error) {
         console.error('Delete department error:', error);
-        res.status(500).render('error', { message: 'Error deleting department', error: error });
+        res.status(500).json({ success: false, message: 'Error deleting department.' });
     }
 });
 
-// Toggle department status (Optional - similar to category status)
-router.post('/department/:id/toggle-status', async (req, res) => {
+// Toggle department active status
+router.post('/departments/:id/toggle-status', async (req, res) => {
     try {
-        // Find department and ensure it belongs to the manager's organization
         const department = await Department.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!department) {
-            return res.status(404).render('error', { message: 'Department not found or not authorized', error: {} });
+            return res.status(404).json({ success: false, message: 'Department not found or not authorized.' });
         }
-
         department.isActive = !department.isActive;
         await department.save();
-        res.redirect('/manager/departments');
+        res.json({ success: true, isActive: department.isActive });
     } catch (error) {
         console.error('Toggle department status error:', error);
-        res.status(500).render('error', { message: 'Error updating department status', error: error });
+        res.status(500).json({ success: false, message: 'Error toggling department status.' });
     }
 });
 
