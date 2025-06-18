@@ -24,6 +24,7 @@ app.set('layout', 'layouts/main');
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads/evidence', express.static(path.join(__dirname, 'uploads/evidence')));
 
 // Session configuration
 app.use(session({
