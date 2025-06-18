@@ -342,7 +342,7 @@ router.post('/categories/create', async (req, res) => {
         if (existingCategory) {
             return res.render('manager/create-category', { error: 'Category with this name already exists.', user: req.session.user });
         }
-        const newCategory = new KpiCategory({ name, description, organization: req.session.user.organization, isActive: true, weight });
+        const newCategory = new KpiCategory({ name, description, organization: req.session.user.organization, createdBy: req.session.user._id, isActive: true, weight });
         await newCategory.save();
         res.redirect('/manager/categories');
     } catch (error) {
@@ -382,45 +382,46 @@ router.post('/categories/:id/edit', async (req, res) => {
 });
 
 // Delete category
-router.post('/category/:id/delete', async (req, res) => {
+router.delete('/categories/:id', async (req, res) => {
     try {
         // Find category and ensure it belongs to the manager's organization
         const category = await KpiCategory.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!category) {
-            return res.status(404).render('error', { message: 'Category not found or not authorized', error: {} });
+            return res.status(404).json({ success: false, message: 'Category not found or not authorized.' });
         }
 
         // Check if category is being used in any KPIs within the manager's organization
         const kpiCount = await KPI.countDocuments({ category: category._id, organization: req.session.user.organization });
         if (kpiCount > 0) {
-            return res.status(400).render('error', { 
-                error: 'Cannot delete category that is being used in KPIs within your organization' 
+            return res.status(400).json({ 
+                success: false,
+                message: 'Cannot delete category that is being used in KPIs within your organization' 
             });
         }
 
         await category.deleteOne();
-        res.redirect('/manager/categories');
+        res.json({ success: true, message: 'Category deleted successfully.' });
     } catch (error) {
         console.error('Delete category error:', error);
-        res.status(500).render('error', { message: 'Error deleting category', error: error });
+        res.status(500).json({ success: false, message: 'Error deleting category.' });
     }
 });
 
 // Toggle category status
-router.post('/category/:id/toggle-status', async (req, res) => {
+router.post('/categories/:id/toggle-status', async (req, res) => {
     try {
         // Find category and ensure it belongs to the manager's organization
         const category = await KpiCategory.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!category) {
-            return res.status(404).render('error', { message: 'Category not found or not authorized', error: {} });
+            return res.status(404).json({ success: false, message: 'Category not found or not authorized.' });
         }
 
         category.isActive = !category.isActive;
         await category.save();
-        res.redirect('/manager/categories');
+        res.json({ success: true, isActive: category.isActive });
     } catch (error) {
         console.error('Toggle category status error:', error);
-        res.status(500).render('error', { message: 'Error updating category status', error: error });
+        res.status(500).json({ success: false, message: 'Error toggling category status.' });
     }
 });
 
