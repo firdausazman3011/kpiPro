@@ -54,7 +54,8 @@ router.get('/dashboard', async (req, res) => {
 router.get('/kpi/create', async (req, res) => {
     try {
         const staff = await User.find({ role: 'staff', organization: req.session.user.organization });
-        const categories = await KpiCategory.find({ isActive: true });
+        const categories = await KpiCategory.find({ organization: req.session.user.organization, isActive: true });
+        
         res.render('manager/create-kpi', { staff, categories });
     } catch (error) {
         console.error('Create KPI form error:', error);
