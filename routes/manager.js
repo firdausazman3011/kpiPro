@@ -428,7 +428,7 @@ router.post('/categories/:id/toggle-status', async (req, res) => {
 // Department Management
 router.get('/departments', async (req, res) => {
     try {
-        const departments = await Department.find({ organization: req.session.user.organization, isActive: true }).sort({ name: 1 });
+        const departments = await Department.find({ organization: req.session.user.organization }).sort({ name: 1 });
         res.render('manager/departments', { departments });
     } catch (error) {
         res.render('error', { message: 'Error loading departments', error: error });
@@ -472,13 +472,12 @@ router.get('/departments/:id/edit', async (req, res) => {
 // Update department
 router.post('/departments/:id/edit', async (req, res) => {
     try {
-        const { name, isActive } = req.body;
+        const { name } = req.body;
         const department = await Department.findOne({ _id: req.params.id, organization: req.session.user.organization });
         if (!department) {
             return res.status(404).render('error', { message: 'Department not found or not authorized', error: {} });
         }
         department.name = name;
-        department.isActive = isActive === 'on';
         await department.save();
         res.redirect('/manager/departments');
     } catch (error) {
