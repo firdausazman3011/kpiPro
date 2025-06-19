@@ -15,6 +15,14 @@
                         </div>
                         <div class="mb-3">
                             <strong>Current Value:</strong> <%= kpi.currentValue %> <%= kpi.unit %>
+                            <% if (kpi.lastProgressValidated === false) { %>
+                                <span class="badge bg-warning text-dark ms-2">Pending Validation</span>
+                                <form action="/manager/kpi/<%= kpi._id %>/validate" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm ms-2">Validate Progress</button>
+                                </form>
+                            <% } else { %>
+                                <span class="badge bg-success ms-2">Validated</span>
+                            <% } %>
                         </div>
                         <div class="mb-3">
                             <strong>Progress:</strong>

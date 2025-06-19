@@ -154,6 +154,7 @@ router.post('/kpi/:id/update', isAuthenticated, isStaff, async (req, res) => {
         kpi.currentValue = updatedValue;
         kpi.calculateProgress();
         kpi.updateStatus();
+        kpi.lastProgressValidated = false;
 
         if (comment) {
             console.log('Adding comment');

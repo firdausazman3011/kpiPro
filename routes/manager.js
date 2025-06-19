@@ -589,4 +589,20 @@ router.get('/settings', async (req, res) => {
     }
 });
 
+// Validate KPI Progress
+router.post('/kpi/:id/validate', async (req, res) => {
+    try {
+        const kpi = await KPI.findOne({ _id: req.params.id, manager: req.session.user._id });
+        if (!kpi) {
+            return res.status(404).render('error', { message: 'KPI not found or not authorized', error: {} });
+        }
+        kpi.lastProgressValidated = true;
+        await kpi.save();
+        res.redirect(`/manager/kpi/${kpi._id}`);
+    } catch (error) {
+        console.error('KPI validation error:', error);
+        res.status(500).render('error', { message: 'Error validating KPI progress', error });
+    }
+});
+
 module.exports = router; 

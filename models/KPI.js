@@ -97,7 +97,11 @@ const kpiSchema = new mongoose.Schema({
         target: Number,
         status: String,
         notes: String
-    }]
+    }],
+    lastProgressValidated: {
+        type: Boolean,
+        default: true
+    }
 });
 
 // Calculate progress based on current value and target
