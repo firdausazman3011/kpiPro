@@ -40,13 +40,10 @@ const uploadsEvidencePath = path.join(__dirname, 'uploads/evidence');
 console.log('Serving uploaded evidence from:', uploadsEvidencePath);
 app.use('/uploads/evidence', express.static(uploadsEvidencePath));
 
-// Global middleware
+// Global middleware for user and flash messages
 app.use((req, res, next) => {
-    // Initialize res.locals if it doesn't exist
     res.locals = res.locals || {};
-    // Set user from session, defaulting to null if not present
     res.locals.user = req.session.user || null;
-    // Set flash messages
     res.locals.success_msg = req.flash('success');
     res.locals.error_msg = req.flash('error');
     res.locals.info_msg = req.flash('info');

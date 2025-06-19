@@ -97,6 +97,57 @@
     </div>
 </div>
 
+<!-- Staff Performance Table -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Staff Performance</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Department</th>
+                                <th scope="col">Total KPIs</th>
+                                <th scope="col">Completed KPIs</th>
+                                <th scope="col">Avg. Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (staffPerformance && staffPerformance.length > 0) { %>
+                                <% staffPerformance.forEach(staff => { %>
+                                    <tr class="align-middle">
+                                        <td><%= staff.name %></td>
+                                        <td><%= staff.department || '-' %></td>
+                                        <td><%= staff.totalKPIs %></td>
+                                        <td><%= staff.completedKPIs %></td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" 
+                                                    style="width: <%= staff.avgProgress %>%" 
+                                                    aria-valuenow="<%= staff.avgProgress %>" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100">
+                                                    <%= staff.avgProgress %>%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr><td colspan="5" class="text-center">No staff data available.</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-12">
         <div class="card border-0 shadow-sm h-100 animated-card">

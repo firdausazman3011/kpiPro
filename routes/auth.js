@@ -234,8 +234,7 @@ router.post('/forgot-password', async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            req.flash('error', 'No account with that email address exists.');
-            return res.redirect('/auth/forgot-password');
+            return res.render('auth/forgot-password', { error_msg: 'No account with that email address exists.' });
         }
 
         // Generate a reset token
@@ -259,12 +258,9 @@ router.post('/forgot-password', async (req, res) => {
         await transporter.sendMail(mailOptions);
 
         req.flash('success', 'An e-mail has been sent to ' + user.email + ' with further instructions.');
-        res.redirect('/auth/forgot-password');
-
     } catch (error) {
         console.error('Forgot password error:', error);
-        req.flash('error', 'Error sending password reset email. Please try again.');
-        res.redirect('/auth/forgot-password');
+        return res.render('auth/forgot-password', { error_msg: 'Error sending password reset email. Please try again.' });
     }
 });
 
@@ -277,15 +273,13 @@ router.get('/reset-password/:token', async (req, res) => {
         });
 
         if (!user) {
-            req.flash('error', 'Password reset token is invalid or has expired.');
-            return res.redirect('/auth/forgot-password');
+            return res.render('auth/forgot-password', { error_msg: 'Password reset token is invalid or has expired.' });
         }
 
         res.render('auth/reset-password', { token: req.params.token });
     } catch (error) {
         console.error('Reset password form error:', error);
-        req.flash('error', 'Error loading password reset form.');
-        res.redirect('/auth/forgot-password');
+        return res.render('auth/forgot-password', { error_msg: 'Error loading password reset form.' });
     }
 });
 
@@ -295,8 +289,7 @@ router.post('/reset-password/:token', async (req, res) => {
         const { password, confirmPassword } = req.body;
 
         if (password !== confirmPassword) {
-            req.flash('error', 'Passwords do not match.');
-            return res.render('auth/reset-password', { token: req.params.token });
+            return res.render('auth/reset-password', { token: req.params.token, error_msg: 'Passwords do not match.' });
         }
 
         const user = await User.findOne({
@@ -305,8 +298,7 @@ router.post('/reset-password/:token', async (req, res) => {
         });
 
         if (!user) {
-            req.flash('error', 'Password reset token is invalid or has expired.');
-            return res.redirect('/auth/forgot-password');
+            return res.render('auth/forgot-password', { error_msg: 'Password reset token is invalid or has expired.' });
         }
 
         user.password = password; // Hashing handled by pre-save hook in user model
@@ -315,13 +307,10 @@ router.post('/reset-password/:token', async (req, res) => {
 
         await user.save();
 
-        req.flash('success', 'Your password has been updated.');
-        res.redirect('/auth/login');
-
+        return res.render('auth/login', { success_msg: 'Your password has been updated. Please log in.' });
     } catch (error) {
         console.error('Reset password error:', error);
-        req.flash('error', 'Error resetting password. Please try again.');
-        res.redirect('/auth/forgot-password');
+        return res.render('auth/forgot-password', { error_msg: 'Error resetting password. Please try again.' });
     }
 });
 

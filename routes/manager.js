@@ -43,7 +43,27 @@ router.get('/dashboard', async (req, res) => {
 
         console.log('Filtered KPIs:', filteredKpis);
 
-        res.render('manager/dashboard', { stats, kpis: filteredKpis, user: req.session.user });
+        // --- Staff Performance Section ---
+        // Get all staff in the manager's organization
+        const staffList = await User.find({ role: 'staff', organization: userOrganization });
+        // For each staff, aggregate their KPI stats
+        const staffPerformance = await Promise.all(staffList.map(async staff => {
+            const staffKpis = await KPI.find({ staff: staff._id, manager: req.session.user._id });
+            const totalKPIs = staffKpis.length;
+            const completedKPIs = staffKpis.filter(kpi => kpi.status === 'completed').length;
+            const avgProgress = totalKPIs > 0 ? Math.round(staffKpis.reduce((sum, kpi) => sum + (kpi.progress || 0), 0) / totalKPIs) : 0;
+            return {
+                _id: staff._id,
+                name: staff.name,
+                department: staff.department,
+                totalKPIs,
+                completedKPIs,
+                avgProgress
+            };
+        }));
+        // --- End Staff Performance Section ---
+
+        res.render('manager/dashboard', { stats, kpis: filteredKpis, user: req.session.user, staffPerformance });
     } catch (error) {
         console.error('Manager Dashboard Error:', error);
         res.render('error', { message: 'Error loading manager dashboard', error: error });
